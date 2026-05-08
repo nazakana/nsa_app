@@ -3,120 +3,437 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download APK NSA - Nurjaya Smart Archive</title>
+    <title>NSA - Nurjaya Smart Archive App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #f1f5f9;
-            color: #1e293b;
-            min-height: 100vh;
+            background-color: #ffffff;
+            color: #202124;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container-custom {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Styling Scrollbar Screenshots */
+        .screenshot-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .screenshot-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 10px 0;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+        
+        .screenshot-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .screenshot-item {
+            flex: 0 0 auto;
+            width: 180px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            scroll-snap-align: start;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .screenshot-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .screenshot-item img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Navigasi Tombol Gulir di List */
+        .scroll-btn {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 10;
+            cursor: pointer;
+            border: 1px solid #eee;
+            transition: all 0.2s;
+            opacity: 0.9;
         }
 
-        .main-card {
-            background: #ffffff;
-            border-radius: 32px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-            border: 1px solid #e2e8f0;
+        .scroll-btn:hover {
+            background: #f8f9fa;
+            transform: scale(1.1);
+            opacity: 1;
         }
 
-        .btn-download {
-            background: #2563eb;
-            transition: all 0.2s ease-in-out;
+        .scroll-btn.left { left: -15px; }
+        .scroll-btn.right { right: -15px; }
+
+        @media (max-width: 640px) {
+            .scroll-btn { display: none; }
         }
 
-        .btn-download:hover {
-            background: #1d4ed8;
-            transform: scale(1.02);
+        .btn-install {
+            background-color: #01875f;
+            color: white;
+            transition: background-color 0.2s;
+            display: inline-block;
         }
 
-        .btn-download:active {
-            transform: scale(0.98);
+        .btn-install:hover {
+            background-color: #00704e;
         }
 
-        .logo-shadow {
-            filter: drop-shadow(0 10px 15px rgba(37, 99, 235, 0.1));
+        /* Modal Preview Fullscreen */
+        #imageModal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
         }
 
-        .instruction-step {
-            background-color: #f8fafc;
-            border-left: 4px solid #3b82f6;
+        #imageModal img {
+            max-height: 85vh;
+            max-width: 90vw;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(255,255,255,0.1);
+            transition: opacity 0.3s ease;
+        }
+
+        /* Navigasi di Dalam Modal */
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 1.5rem;
+            z-index: 1010;
+        }
+
+        .modal-nav:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-nav.left { left: 20px; }
+        .modal-nav.right { right: 20px; }
+
+        @media (max-width: 640px) {
+            .modal-nav { width: 40px; height: 40px; font-size: 1.2rem; }
+            .modal-nav.left { left: 10px; }
+            .modal-nav.right { right: 10px; }
+        }
+
+        .tag {
+            background-color: #f1f3f4;
+            color: #5f6368;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .instruction-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #e8eaed;
         }
     </style>
 </head>
-<body class="p-6">
+<body class="pb-10">
 
-    <div class="max-w-md w-full main-card overflow-hidden">
-        
-        <!-- Konten Utama -->
-        <div class="p-10 flex flex-col items-center text-center">
-            <!-- Logo -->
-            <div class="mb-8">
+    <!-- Header / Navbar -->
+    <nav class="border-b border-gray-200 py-4 px-6 sticky top-0 bg-white z-50">
+        <div class="max-w-screen-xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <i class="fas fa-arrow-left text-gray-600 cursor-pointer"></i>
+                <img src="https://lh3.googleusercontent.com/d/1hPgmkU4MertGor-v5QOCQ9sLM2tyYamk" 
+                     alt="Logo" class="w-8 h-8 rounded-md shadow-sm"
+                     onerror="this.src='https://ui-avatars.com/api/?name=NSA&background=01875f&color=fff'">
+                <span class="font-semibold text-lg text-gray-800">Google Play</span>
+            </div>
+            <i class="fas fa-search text-gray-600"></i>
+        </div>
+    </nav>
+
+    <div class="container-custom">
+        <!-- App Info Section -->
+        <div class="flex flex-col md:flex-row md:items-start gap-6 mt-6">
+            <!-- Icon -->
+            <div class="w-24 h-24 md:w-36 md:h-36 flex-shrink-0 mx-auto md:mx-0">
                 <img src="https://lh3.googleusercontent.com/d/1hPgmkU4MertGor-v5QOCQ9sLM2tyYamk" 
                      alt="Logo NSA" 
-                     class="w-32 h-32 object-contain rounded-3xl logo-shadow"
-                     onerror="this.src='https://ui-avatars.com/api/?name=NSA&background=2563eb&color=fff&size=128'">
+                     class="w-full h-full object-contain rounded-2xl shadow-lg border border-gray-100"
+                     onerror="this.src='https://ui-avatars.com/api/?name=NSA&background=01875f&color=fff&size=256'">
             </div>
 
-            <h1 class="text-2xl font-bold text-slate-900 mb-2">
-                Nurjaya Smart Archive
-            </h1>
-            <p class="text-slate-500 text-sm mb-8">
-                Versi Aplikasi Mobile (Android)
-            </p>
+            <!-- Details -->
+            <div class="flex-grow text-center md:text-left">
+                <h1 class="text-3xl font-bold text-gray-900 mb-1">NSA (Nurjaya Smart Archive)</h1>
+                <p class="text-emerald-700 font-semibold mb-1">Nurjaya Abadi Photocopy</p>
+                <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-6 mt-3">
+                    <span class="tag">Produktivitas</span>
+                    <span class="tag">Bisnis</span>
+                    <span class="tag">Arsip Digital</span>
+                </div>
 
-            <!-- Info Box Sederhana -->
-            <div class="w-full bg-blue-50 rounded-2xl p-5 mb-8 border border-blue-100">
-                <p class="text-blue-800 text-sm leading-relaxed">
-                    Website Official Arsip Operasional Nurjaya. Dibuat untuk mempermudah pemantauan Pembukuan Bulanan dan sebagai Arsip Riwayat Keuangan.
-                </p>
+                <!-- Download Button - FIXED BUG WITH TARGET BLANK -->
+                <div class="flex flex-col sm:flex-row items-center gap-3">
+                    <a href="https://drive.google.com/uc?export=download&id=1I2cBsZZxDmKZQTU5eXDCC1o3pUjzTZsC" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="btn-install w-full sm:w-auto px-12 py-2.5 rounded-lg font-medium text-sm text-center shadow-md">
+                        Instal
+                    </a>
+                    <button class="text-emerald-700 font-medium px-4 py-2 hover:bg-emerald-50 rounded-lg text-sm transition-colors">
+                        <i class="fas fa-plus-circle mr-2"></i>Tambahkan ke wishlist
+                    </button>
+                </div>
             </div>
-
-            <!-- Tombol Download -->
-            <!-- Menggunakan link langsung dan mencegah default behavior yang menyebabkan refresh -->
-            <a href="https://drive.google.com/uc?export=download&id=1I2cBsZZxDmKZQTU5eXDCC1o3pUjzTZsC" 
-               target="_blank"
-               rel="noopener noreferrer"
-               class="btn-download w-full py-4 px-6 rounded-2xl flex items-center justify-center space-x-3 text-white font-bold text-lg shadow-lg shadow-blue-200">
-                <i class="fas fa-cloud-download-alt"></i>
-                <span>Unduh Sekarang</span>
-            </a>
-            
-            <p class="mt-4 text-slate-400 text-[11px] flex items-center">
-                <i class="fas fa-info-circle mr-1"></i> Klik tombol untuk mulai mengunduh file APK
-            </p>
         </div>
 
-        <!-- Bagian Instruksi -->
-        <div class="px-10 pb-10">
-            <div class="space-y-3">
-                <div class="instruction-step p-3 rounded-r-xl">
-                    <p class="text-xs font-semibold text-slate-700">1. Unduh APK</p>
-                    <p class="text-[11px] text-slate-500">Klik tombol di atas dan tunggu proses selesai.</p>
+        <!-- Screenshots Section -->
+        <div class="mt-10">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-900">Cuplikan Layar</h2>
+                <i class="fas fa-arrow-right text-gray-400"></i>
+            </div>
+            
+            <div class="screenshot-wrapper">
+                <button class="scroll-btn left" onclick="scrollGallery(-1)" aria-label="Sebelumnya">
+                    <i class="fas fa-chevron-left text-gray-600"></i>
+                </button>
+
+                <div class="screenshot-container" id="screenshotList">
+                    <script>
+                        const realIds = [
+                            '10jygDdZoBMayIlisPpdj0TD7eRkhX19A',
+                            '1YFQv4SDb0AsNazJDhwySpyVFUp43J2wl',
+                            '1p9Uo8bz1BD5TxbMhZzxNLVCod45CWw58',
+                            '1b41iiAMcVZn-Bn0FHU5K2i2AYZSVZNuq',
+                            '14IjS010h6iNOstkcI8M1U3rxelGwyImT',
+                            '1e1OLVhalYll-_M_EWJzr-f3kul19S2eD',
+                            '1Sz2ykooUKJB_jEMGP8uTijzSjnV-PCyL',
+                            '1pXHEPqC8Uxvw3VxogoWD9twrH5pEQDBL',
+                            '158SnmhbeUfK2NniKz7WBglAKFYRMDMs3',
+                            '1oe4a9GofTRDbQlvAHBzHtmvYCBjny35P'
+                        ];
+
+                        realIds.forEach((id, index) => {
+                            const url = `https://lh3.googleusercontent.com/d/${id}`;
+                            document.write(`
+                                <div class="screenshot-item" onclick="openModal(${index})">
+                                    <img src="${url}" alt="Screenshot ${index + 1}" 
+                                         onerror="this.src='https://ui-avatars.com/api/?name=Screenshot&background=f1f3f4&color=5f6368&size=300'">
+                                </div>
+                            `);
+                        });
+                    </script>
                 </div>
-                <div class="instruction-step p-3 rounded-r-xl">
-                    <p class="text-xs font-semibold text-slate-700">2. Izinkan Instalasi</p>
-                    <p class="text-[11px] text-slate-500">Buka file dan izinkan instalasi dari sumber tidak dikenal.</p>
+
+                <button class="scroll-btn right" onclick="scrollGallery(1)" aria-label="Berikutnya">
+                    <i class="fas fa-chevron-right text-gray-600"></i>
+                </button>
+            </div>
+
+            <div class="flex items-center text-xs text-gray-500 mt-3">
+                <i class="fas fa-hand-pointer mr-2"></i> Geser atau klik gambar untuk memperbesar
+            </div>
+        </div>
+
+        <!-- About App Section -->
+        <div class="mt-10 border-t border-gray-100 pt-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-900">Tentang aplikasi ini</h2>
+                <i class="fas fa-arrow-right text-gray-600"></i>
+            </div>
+            <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                Aplikasi Official Nurjaya Abadi yang merupakan Arsip Digital Operasional Nurjaya. Dibuat untuk mempermudah pemantauan Pembukuan Bulanan dan sebagai Arsip Riwayat Keuangan di Nurjaya Abadi Photocopy.
+            </p>
+            
+            <h3 class="font-semibold text-sm mb-2 text-gray-800">Yang Baru</h3>
+            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 mb-6">
+                <p class="text-xs text-emerald-800 leading-relaxed">
+                    • Optimasi sistem pengarsipan digital.<br>
+                    • Peningkatan performa pembukuan bulanan.<br>
+                    • Perbaikan bug pada riwayat keuangan.
+                </p>
+            </div>
+        </div>
+
+        <!-- How to Install (Instruksi) -->
+        <div class="mt-10 border-t border-gray-100 pt-8">
+            <h2 class="text-lg font-bold mb-4 text-gray-900">Panduan Instalasi</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="instruction-card">
+                    <div class="bg-emerald-100 w-8 h-8 rounded-full flex items-center justify-center text-emerald-700 font-bold mb-3 text-sm">1</div>
+                    <p class="text-xs font-bold text-gray-800">Unduh File</p>
+                    <p class="text-[11px] text-gray-500 mt-1">Klik tombol 'Instal' di bagian atas halaman ini.</p>
                 </div>
-                <div class="instruction-step p-3 rounded-r-xl">
-                    <p class="text-xs font-semibold text-slate-700">3. Selesai</p>
-                    <p class="text-[11px] text-slate-500">Buka aplikasi NSA dan masuk dengan kode akses Anda.</p>
+                <div class="instruction-card">
+                    <div class="bg-emerald-100 w-8 h-8 rounded-full flex items-center justify-center text-emerald-700 font-bold mb-3 text-sm">2</div>
+                    <p class="text-xs font-bold text-gray-800">Izin Sumber</p>
+                    <p class="text-[11px] text-gray-500 mt-1">Buka pengaturan ponsel dan izinkan instalasi dari "Sumber tidak dikenal".</p>
+                </div>
+                <div class="instruction-card">
+                    <div class="bg-emerald-100 w-8 h-8 rounded-full flex items-center justify-center text-emerald-700 font-bold mb-3 text-sm">3</div>
+                    <p class="text-xs font-bold text-gray-800">Masuk Aplikasi</p>
+                    <p class="text-[11px] text-gray-500 mt-1">Jalankan aplikasi dan gunakan kode akses resmi Nurjaya.</p>
                 </div>
             </div>
         </div>
 
         <!-- Footer -->
-        <div class="bg-slate-50 py-4 text-center border-t border-slate-100">
-            <p class="text-slate-400 text-[10px] font-medium tracking-wider uppercase">
-                © 2026 Nurjaya Abadi Photocopy
+        <footer class="mt-16 pt-8 border-t border-gray-200 text-center">
+            <p class="text-xs text-gray-400 max-w-sm mx-auto mb-6">
+                Google Play dan logo Google Play merupakan merek dagang Google LLC. Aplikasi ini didistribusikan secara internal untuk operasional Nurjaya.
             </p>
+            <div class="flex justify-center space-x-6 mb-8 text-gray-400 text-sm">
+                <span>Privasi</span>
+                <span>Ketentuan</span>
+                <span>Kontak</span>
+            </div>
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">© 2026 NURJAYA ABADI PHOTOCOPY</p>
+        </footer>
+    </div>
+
+    <!-- Image Modal Overlay -->
+    <div id="imageModal">
+        <button class="absolute top-6 right-6 text-white text-4xl z-[1020]" onclick="closeModal()" aria-label="Tutup">&times;</button>
+        
+        <!-- Modal Navigation -->
+        <button class="modal-nav left" onclick="changeImage(-1)" aria-label="Foto Sebelumnya">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <img id="modalImg" src="" alt="Preview Fullscreen">
+        
+        <button class="modal-nav right" onclick="changeImage(1)" aria-label="Foto Berikutnya">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/70 text-xs font-medium" id="imageCounter">
+            1 / 10
         </div>
     </div>
+
+    <script>
+        // Data ID Gambar
+        const galleryIds = [
+            '10jygDdZoBMayIlisPpdj0TD7eRkhX19A',
+            '1YFQv4SDb0AsNazJDhwySpyVFUp43J2wl',
+            '1p9Uo8bz1BD5TxbMhZzxNLVCod45CWw58',
+            '1b41iiAMcVZn-Bn0FHU5K2i2AYZSVZNuq',
+            '14IjS010h6iNOstkcI8M1U3rxelGwyImT',
+            '1e1OLVhalYll-_M_EWJzr-f3kul19S2eD',
+            '1Sz2ykooUKJB_jEMGP8uTijzSjnV-PCyL',
+            '1pXHEPqC8Uxvw3VxogoWD9twrH5pEQDBL',
+            '158SnmhbeUfK2NniKz7WBglAKFYRMDMs3',
+            '1oe4a9GofTRDbQlvAHBzHtmvYCBjny35P'
+        ];
+
+        let currentImgIndex = 0;
+
+        function openModal(index) {
+            currentImgIndex = index;
+            updateModalContent();
+            document.getElementById('imageModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function changeImage(step) {
+            currentImgIndex += step;
+            // Looping gallery
+            if (currentImgIndex >= galleryIds.length) currentImgIndex = 0;
+            if (currentImgIndex < 0) currentImgIndex = galleryIds.length - 1;
+            
+            updateModalContent();
+        }
+
+        function updateModalContent() {
+            const img = document.getElementById('modalImg');
+            const counter = document.getElementById('imageCounter');
+            const id = galleryIds[currentImgIndex];
+            
+            img.style.opacity = '0';
+            // Preload image
+            const tempImg = new Image();
+            tempImg.onload = function() {
+                img.src = this.src;
+                img.style.opacity = '1';
+                counter.innerText = `${currentImgIndex + 1} / ${galleryIds.length}`;
+            };
+            tempImg.src = `https://lh3.googleusercontent.com/d/${id}`;
+        }
+
+        // Fungsi Gulir Manual di List Utama
+        function scrollGallery(direction) {
+            const container = document.getElementById('screenshotList');
+            const scrollAmount = 240 * direction;
+            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+
+        // Event Keyboard (Esc, Panah Kiri, Panah Kanan)
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('imageModal');
+            if (modal.style.display === 'flex') {
+                if (e.key === "Escape") closeModal();
+                if (e.key === "ArrowRight") changeImage(1);
+                if (e.key === "ArrowLeft") changeImage(-1);
+            }
+        });
+
+        // Close modal when clicking background
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
 
 </body>
 </html>
